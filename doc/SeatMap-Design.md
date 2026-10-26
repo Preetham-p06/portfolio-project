@@ -74,6 +74,14 @@ for (int r = 0; r < this.rows(); r++) {
 `SeatMap extends SeatMapKernel` declares the two secondary queries
 `countAvailable` and `isFull`. It adds no new mathematical state.
 
+`SeatMapSecondary` is an abstract class implementing both enhanced queries.
+`countAvailable` reads the dimensions once, visits each valid coordinate, and
+counts seats reported available by the kernel. Its zero-based loop counters
+are converted to one-based coordinates when querying seats. `isFull` checks
+whether `countAvailable()` returns zero. Both implementations preserve the
+map, and the class declares no representation fields. Concrete subclasses
+remain responsible for the kernel and inherited standard operations.
+
 Each seat operation has a valid-coordinate precondition. Reserving also
 requires availability; releasing requires an existing reservation. Behavior
 outside the preconditions is not specified. Full-tuple postconditions for
@@ -99,6 +107,7 @@ The deliverables are separate files in this project layout:
 ```text
 src/components/seatmap/SeatMapKernel.java
 src/components/seatmap/SeatMap.java
+src/components/seatmap/SeatMapSecondary.java
 doc/SeatMap-Design.md
 ```
 
@@ -114,9 +123,19 @@ OSU library at `lib/components.jar`. The following command exited with status
 0 and produced no warnings or errors:
 
 ```bash
-javac --release 21 -Xlint:all -Werror -cp lib/components.jar -d bin src/components/seatmap/SeatMapKernel.java src/components/seatmap/SeatMap.java
+javac --release 21 -Xlint:all -Werror -cp lib/components.jar -d bin src/components/seatmap/SeatMapKernel.java src/components/seatmap/SeatMap.java src/components/seatmap/SeatMapSecondary.java
 ```
 
 This verifies Java syntax, types, and integration with the OSU `Standard`
-interface. It does not verify mathematical contracts or runtime behavior.
-No implementing class is included in these deliverables.
+interface for both interfaces and the abstract secondary class. It does not
+verify mathematical contracts or runtime behavior. No concrete kernel
+implementation is included in these deliverables.
+
+### Previously reported checks
+
+The supplied design document reports a Java 17 compilation using a temporary
+`Standard` signature stub, behavioral checks of 682 reservation patterns using
+a kernel test double, and successful Javadoc generation. Those test artifacts
+were not supplied, so these results have not been independently verified in
+this repository. The Java 21 compilation above was performed locally against
+the actual OSU library.
