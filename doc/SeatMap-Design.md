@@ -81,6 +81,13 @@ are converted to one-based coordinates when querying seats. `isFull` checks
 whether `countAvailable()` returns zero. Both implementations preserve the
 map, and the class declares no representation fields. Concrete subclasses
 remain responsible for the kernel and inherited standard operations.
+The secondary class also implements `equals`, `hashCode`, and `toString`
+through kernel queries.
+
+`SeatMap1` provides the concrete implementation. It stores dimensions and a
+`java.util.HashSet<Integer>` of reserved row-major seat indexes. Its standard
+methods reset to the 1-by-1 initial value, create a fresh initial instance, or
+transfer the representation and reset the source without sharing the set.
 
 Each seat operation has a valid-coordinate precondition. Reserving also
 requires availability; releasing requires an existing reservation. Behavior
@@ -108,6 +115,7 @@ The deliverables are separate files in this project layout:
 src/components/seatmap/SeatMapKernel.java
 src/components/seatmap/SeatMap.java
 src/components/seatmap/SeatMapSecondary.java
+src/components/seatmap/SeatMap1.java
 doc/SeatMap-Design.md
 ```
 
@@ -123,19 +131,25 @@ OSU library at `lib/components.jar`. The following command exited with status
 0 and produced no warnings or errors:
 
 ```bash
-javac --release 21 -Xlint:all -Werror -cp lib/components.jar -d bin src/components/seatmap/SeatMapKernel.java src/components/seatmap/SeatMap.java src/components/seatmap/SeatMapSecondary.java
+javac --release 21 -Xlint:all -Werror -cp lib/components.jar -d bin src/components/seatmap/SeatMapKernel.java src/components/seatmap/SeatMap.java src/components/seatmap/SeatMapSecondary.java src/components/seatmap/SeatMap1.java
 ```
 
 This verifies Java syntax, types, and integration with the OSU `Standard`
-interface for both interfaces and the abstract secondary class. It does not
-verify mathematical contracts or runtime behavior. No concrete kernel
-implementation is included in these deliverables.
+interface for both interfaces, the abstract secondary class, and `SeatMap1`.
+Compilation does not verify mathematical contracts.
 
-### Previously reported checks
+### Local runtime checks
 
-The supplied design document reports a Java 17 compilation using a temporary
-`Standard` signature stub, behavioral checks of 682 reservation patterns using
-a kernel test double, and successful Javadoc generation. Those test artifacts
-were not supplied, so these results have not been independently verified in
-this repository. The Java 21 compilation above was performed locally against
-the actual OSU library.
+A temporary verification program outside the repository ran with assertions
+enabled against the compiled classes and the actual OSU library. It passed
+all 682 reservation patterns across layouts with one through three rows and
+one through three seats per row. Checks covered available counts, fullness,
+seat status, releasing reservations, equality, equal hashes, fresh instances,
+clear, transfers across different dimensions, and independence after transfer.
+Additional checks covered the maximum valid seat index in a 1-by-Integer.MAX_VALUE
+map and one exact `toString` result. Full-map traversal was not attempted on
+the maximum-capacity map.
+
+These checks are not the assignment's systematic JUnit suite. The verification
+program was temporary and is not included in this repository. Javadoc and
+Checkstyle were not validated in this update.
